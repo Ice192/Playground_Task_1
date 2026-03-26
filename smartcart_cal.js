@@ -1,20 +1,4 @@
-// function getItem() {
-//   const inputs = document.querySelectorAll(".item input");
-
-//   const name = inputs[0].value;
-//   const price = Number(inputs[1].value);
-//   const qty = Number(inputs[2].value);
-
-//   if (!name || isNaN(price) || isNaN(qty)) return null;
-
-//   return { name, price, qty };
-// }
 const Disc = 0.1
-
-const items = [
-  { name: "Fish A", price: 20, qty: 2 },
-  { name: "Fish B", price: 5, qty: 4 },
-];
 
 function calculateSubtotal(items) {
   let subtotal = 0;
@@ -42,34 +26,60 @@ function calculateTotal(amount, tax) {
   return amount + tax;
 }
 
-// const calculateButton = document.getElementById("#calculate");
+function getItems() {
+  const itemBlocks = document.querySelectorAll(".item");
+  const parsedItems = [];
 
-// if (calculateButton) {
-//   calculateButton.addEventListener("click", function () {
-//     const items = getItems();
+  for (const block of itemBlocks) {
+    const inputs = block.querySelectorAll("input");
+    if (inputs.length < 3) continue;
 
-//     const subtotal = calculateSubtotal(items);
-//     const tax = calculateTax(subtotal);
-//     const total = calculateTotal(subtotal, tax);
+    const name = inputs[0].value.trim();
+    const rawPrice = inputs[1].value;
+    const rawQty = inputs[2].value;
 
-//     document.getElementById("subtotal").textContent = subtotal;
-//     document.getElementById("tax").textContent = tax;
-//     document.getElementById("total").textContent = total;
-//   });
-// }
+    if (name === "" && rawPrice === "" && rawQty === "") {
+      continue;
+    }
 
+    parsedItems.push({
+      name: name || "Item",
+      price: Number(rawPrice) || 0,
+      qty: Number(rawQty) || 0,
+    });
+  }
 
-const result = calculateSubtotal(items);
+  return parsedItems;
+}
 
-const tax = calculateTax(result.finalSubtotal);
-const total = calculateTotal(result.finalSubtotal, tax);
+function formatNumber(value) {
+  return value.toFixed(2);
+}
 
+function renderResult(result, tax, total) {
+  document.getElementById("subtotal").textContent = formatNumber(result.subtotal);
+  document.getElementById("discount").textContent = `${formatNumber(result.discount)} dari ${Disc * 100} %`;
+  document.getElementById("after-discount").textContent = formatNumber(result.finalSubtotal);
+  document.getElementById("tax").textContent = formatNumber(tax);
+  document.getElementById("total").textContent = formatNumber(total);
+}
 
-// OUTPUT
-console.log(`------- Selamat Datang ------`);
-console.log(`Subtotal: ${result.subtotal}`);
-console.log(`Diskon: ${result.discount} dari ${Disc * 100} %`);
-console.log(`Harga setelah diskon: ${result.finalSubtotal}`);
-console.log(`Tax: ${tax}`);
-console.log(`Total Belanja: ${total}`);
+const calculateButton = document.getElementById("calculate");
 
+if (calculateButton) {
+  calculateButton.addEventListener("click", function () {
+    const items = getItems();
+    const result = calculateSubtotal(items);
+    const tax = calculateTax(result.finalSubtotal);
+    const total = calculateTotal(result.finalSubtotal, tax);
+
+    renderResult(result, tax, total);
+
+    console.log(`------- Selamat Datang ------`);
+    console.log(`Subtotal: ${result.subtotal}`);
+    console.log(`Diskon: ${result.discount} dari ${Disc * 100} %`);
+    console.log(`Harga setelah diskon: ${result.finalSubtotal}`);
+    console.log(`Tax: ${tax}`);
+    console.log(`Total Belanja: ${total}`);
+  });
+}
